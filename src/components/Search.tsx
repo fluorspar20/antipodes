@@ -53,11 +53,16 @@ interface PlaceType {
       }
     ];
   };
+  place_id: string;
 }
 
 interface LocationSearchProps {
   places: PlaceType[] | null;
   setPlaces: React.Dispatch<React.SetStateAction<PlaceType[] | null>>;
+}
+
+interface SearchProps extends LocationSearchProps {
+  handleClick: () => void;
 }
 
 const LocationSearch: React.FC<LocationSearchProps> = ({ places, setPlaces }) => {
@@ -176,13 +181,8 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ places, setPlaces }) =>
   );
 };
 
-export default function Search() {
+const Search: React.FC<SearchProps> = ({ places, setPlaces, handleClick }) => {
   const classes = useStyles();
-  const [places, setPlaces] = React.useState<PlaceType[] | null>(null);
-
-  const handleClick = () => {
-    console.log(places);
-  };
 
   return (
     <>
@@ -206,4 +206,6 @@ export default function Search() {
       </Grid>
     </>
   );
-}
+};
+
+export default Search;

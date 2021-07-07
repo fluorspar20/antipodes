@@ -2,8 +2,10 @@ import React from "react";
 import { Grid, Container, Theme } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Typography } from "@material-ui/core";
-import InfoOutlinedIcon from "@material-ui/icons/InfoOutlined";
 import Search from "./Search";
+import axios from "axios";
+import { KEY } from "../config";
+import AntipodeInfo from "./AntipodeInfo";
 
 const useStyles = makeStyles(({ spacing }: Theme) => ({
   header: {
@@ -22,8 +24,76 @@ const useStyles = makeStyles(({ spacing }: Theme) => ({
   },
 }));
 
+interface PlaceType {
+  description: string;
+  structured_formatting: {
+    main_text: string;
+    secondary_text: string;
+    main_text_matched_substrings: [
+      {
+        offset: number;
+        length: number;
+      }
+    ];
+  };
+  place_id: string;
+}
+
+interface Coordinates {
+  lat: number;
+  long: number;
+}
+
 const AntipodeMaster: React.FC = () => {
   const classes = useStyles();
+
+  const [places, setPlaces] = React.useState<PlaceType[] | null>(null);
+  const [coord, setCoord] = React.useState<Coordinates[]>([]);
+
+  React.useEffect(() => {
+    const config = {
+      headers: {
+        "content-type": "application/json",
+        // "Access-Control-Allow-Origin": "*",
+        // "Access-Control-Allow-Credentials": "true",
+      },
+
+      // crossorigin: true,
+    };
+    const fetch = () => {
+      // places?.forEach((place) => {
+      places &&
+        axios
+          .get(
+            `https://maps.googleapis.com/maps/api/place/details/json?placeid=${
+              places[places?.length - 1].place_id
+            }&key=${KEY}`,
+            config
+          )
+          .then((res) => {
+            setCoord([...coord, res.data.result.geometry.location]);
+          })
+          .catch((err) => console.log(err));
+      // });
+    };
+
+    fetch();
+  }, [places]);
+
+  const handleClick = () => {
+    console.log(places);
+
+    // snippet to make sure that if user presses find a multiple times, duplicate entries are not taken into account
+    // const uniqueCoords: Coordinates[] = [];
+    // coord.forEach((c: any) => {
+    //   if (!uniqueCoords.includes(c)) {
+    //     uniqueCoords.push(c);
+    //   }
+    // });
+
+    // setCoord(uniqueCoords);
+    console.log(coord);
+  };
 
   return (
     <Container maxWidth="md">
@@ -36,26 +106,10 @@ const AntipodeMaster: React.FC = () => {
           </Grid>
         </Grid>
         <Grid item xs={12}>
-          <Grid container>
-            <Typography variant="h4">
-              <InfoOutlinedIcon fontSize="default" color="action" /> What is an antipode?
-            </Typography>
-            <Typography variant="body1">
-              An <strong>antipode</strong>, or antipodal point, is the point on the planet that is
-              located diametrically opposite to a specific geographic location, and therefore, is
-              the farthest point in the world from that location. The antipode of any place can be
-              identified by drawing an imaginary straight line that passes through the center of the
-              planet and reaches the other side of the world.
-            </Typography>
-            <Typography variant="body1">
-              Since most of the planet is covered by water (71%), the antipodal point to most cities
-              is located in the ocean. However, there are many cities around the world that are
-              antipodes of each other.
-            </Typography>
-          </Grid>
+          <AntipodeInfo />
         </Grid>
         <Grid item xs={12}>
-          <Search />
+          <Search places={places} setPlaces={setPlaces} handleClick={handleClick} />
         </Grid>
       </Grid>
     </Container>
