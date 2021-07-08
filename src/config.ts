@@ -1,1 +1,1 @@
-export const KEY = "AIzaSyC918bAW3qkveBS7srSQfhv_ucPo8wbBOg";
+export const KEY = process.env.KEY;
