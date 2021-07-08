@@ -66,21 +66,21 @@ const AntipodeMaster: React.FC = () => {
       // crossorigin: true,
     };
 
+    setCoord([]);
+
     const fetch = () => {
       places?.length &&
-        // places?.forEach((place) => {
-        axios
-          .get(
-            `https://maps.googleapis.com/maps/api/place/details/json?placeid=${
-              places[places.length - 1].place_id
-            }&key=${KEY}`,
-            config
-          )
-          .then((res) => {
-            setCoord([...coord, res.data.result.geometry.location]);
-          })
-          .catch((err) => console.log(err));
-      // });
+        places?.forEach((place) => {
+          axios
+            .get(
+              `https://maps.googleapis.com/maps/api/place/details/json?placeid=${place.place_id}&key=${KEY}`,
+              config
+            )
+            .then((res) => {
+              setCoord((c) => [...c, res.data.result.geometry.location]);
+            })
+            .catch((err) => console.log(err));
+        });
     };
 
     fetch();
@@ -124,6 +124,12 @@ const AntipodeMaster: React.FC = () => {
         </Grid>
         <Grid item xs={12}>
           <Grid justify="space-between" container>
+            <Typography variant="subtitle1">
+              <em>
+                Note: Two locations having the same marker color implies that they are antipodes of
+                each other
+              </em>
+            </Typography>
             <AntipodeMap coord={coord} color={colors} />
             <AntipodeMap antipode coord={antipodeCoord} color={colors} />
           </Grid>
