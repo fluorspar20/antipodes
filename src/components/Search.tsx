@@ -52,7 +52,6 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ places, setPlaces }) =>
           config
         )
         .then((res) => {
-          console.log(res.data.predictions);
           setOptions(res.data.predictions);
         })
         .catch((err) => console.log(err));
