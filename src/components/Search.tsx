@@ -5,27 +5,14 @@ import LocationOnIcon from "@material-ui/icons/LocationOn";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import parse from "autosuggest-highlight/parse";
-import throttle from "lodash/throttle";
 import SearchOutlinedIcon from "@material-ui/icons/SearchOutlined";
+import { PlaceType } from "./AntipodeMaster";
 import { Grid, Theme } from "@material-ui/core";
 import { Button } from "@material-ui/core";
 import { KEY } from "../config";
+import axios from "axios";
 
 import { FormControl } from "@material-ui/core";
-
-function loadScript(src: string, position: HTMLElement | null, id: string) {
-  if (!position) {
-    return;
-  }
-
-  const script = document.createElement("script");
-  script.setAttribute("async", "");
-  script.setAttribute("id", id);
-  script.src = src;
-  position.appendChild(script);
-}
-
-const autocompleteService = { current: null };
 
 const useStyles = makeStyles((theme: Theme) => ({
   icon: {
@@ -41,21 +28,6 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-interface PlaceType {
-  description: string;
-  structured_formatting: {
-    main_text: string;
-    secondary_text: string;
-    main_text_matched_substrings: [
-      {
-        offset: number;
-        length: number;
-      }
-    ];
-  };
-  place_id: string;
-}
-
 interface LocationSearchProps {
   places: PlaceType[] | null;
   setPlaces: React.Dispatch<React.SetStateAction<PlaceType[] | null>>;
@@ -69,63 +41,29 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ places, setPlaces }) =>
   const classes = useStyles();
   const [inputValue, setInputValue] = React.useState("");
   const [options, setOptions] = React.useState<PlaceType[]>([]);
-  const loaded = React.useRef(false);
-
-  if (typeof window !== "undefined" && !loaded.current) {
-    if (!document.querySelector("#google-maps")) {
-      loadScript(
-        `https://maps.googleapis.com/maps/api/js?key=${KEY}&libraries=places`,
-        document.querySelector("head"),
-        "places-api"
-      );
-    }
-
-    loaded.current = true;
-  }
-
-  const fetch = React.useMemo(
-    () =>
-      throttle((request: { input: string }, callback: (results?: PlaceType[]) => void) => {
-        (autocompleteService.current as any).getPlacePredictions(request, callback);
-      }, 200),
-    []
-  );
 
   React.useEffect(() => {
-    let active = true;
-
-    if (!autocompleteService.current && (window as any).google) {
-      autocompleteService.current = new (window as any).google.maps.places.AutocompleteService();
-    }
-    if (!autocompleteService.current) {
-      return undefined;
-    }
-
-    if (inputValue === "") {
-      setOptions(places ? places : []);
-      return undefined;
-    }
-
-    fetch({ input: inputValue }, (results?: PlaceType[]) => {
-      if (active) {
-        let newOptions = [] as PlaceType[];
-
-        if (places) {
-          newOptions = places;
-        }
-
-        if (results) {
-          newOptions = [...newOptions, ...results];
-        }
-
-        setOptions(newOptions);
-      }
-    });
-
-    return () => {
-      active = false;
+    const config = {
+      headers: {
+        "content-type": "application/json",
+      },
     };
-  }, [places, inputValue, fetch]);
+    const fetch = () => {
+      axios
+        .get(
+          `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${inputValue}&types=geocode&language=en&key=${KEY}`,
+          config
+        )
+        .then((res) => {
+          console.log(res.data.predictions);
+          setOptions(res.data.predictions);
+        })
+        .catch((err) => console.log(err));
+      // });
+    };
+
+    fetch();
+  }, [places, inputValue]);
 
   return (
     <Autocomplete

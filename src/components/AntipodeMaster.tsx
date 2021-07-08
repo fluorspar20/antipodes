@@ -5,7 +5,10 @@ import { Typography } from "@material-ui/core";
 import Search from "./Search";
 import axios from "axios";
 import { KEY } from "../config";
+import { getAntipode } from "../utils/getAntipode";
+import { getRandomColor } from "../utils/getRandomColor";
 import AntipodeInfo from "./AntipodeInfo";
+import AntipodeMap from "./AntipodeMap";
 
 const useStyles = makeStyles(({ spacing }: Theme) => ({
   header: {
@@ -24,7 +27,7 @@ const useStyles = makeStyles(({ spacing }: Theme) => ({
   },
 }));
 
-interface PlaceType {
+export interface PlaceType {
   description: string;
   structured_formatting: {
     main_text: string;
@@ -39,16 +42,18 @@ interface PlaceType {
   place_id: string;
 }
 
-interface Coordinates {
+export interface Coordinates {
   lat: number;
-  long: number;
+  lng: number;
 }
 
 const AntipodeMaster: React.FC = () => {
   const classes = useStyles();
 
-  const [places, setPlaces] = React.useState<PlaceType[] | null>(null);
+  const [places, setPlaces] = React.useState<PlaceType[] | null>([]);
   const [coord, setCoord] = React.useState<Coordinates[]>([]);
+  const [antipodeCoord, setAntipodeCoord] = React.useState<Coordinates[]>([]);
+  const [colors, setColors] = React.useState<string[]>([]);
 
   React.useEffect(() => {
     const config = {
@@ -60,13 +65,14 @@ const AntipodeMaster: React.FC = () => {
 
       // crossorigin: true,
     };
+
     const fetch = () => {
-      // places?.forEach((place) => {
-      places &&
+      places?.length &&
+        // places?.forEach((place) => {
         axios
           .get(
             `https://maps.googleapis.com/maps/api/place/details/json?placeid=${
-              places[places?.length - 1].place_id
+              places[places.length - 1].place_id
             }&key=${KEY}`,
             config
           )
@@ -79,6 +85,11 @@ const AntipodeMaster: React.FC = () => {
 
     fetch();
   }, [places]);
+
+  React.useEffect(() => {
+    setAntipodeCoord(getAntipode(coord));
+    setColors(getRandomColor(coord.length));
+  }, [coord]);
 
   const handleClick = () => {
     console.log(places);
@@ -110,6 +121,12 @@ const AntipodeMaster: React.FC = () => {
         </Grid>
         <Grid item xs={12}>
           <Search places={places} setPlaces={setPlaces} handleClick={handleClick} />
+        </Grid>
+        <Grid item xs={12}>
+          <Grid justify="space-between" container>
+            <AntipodeMap coord={coord} color={colors} />
+            <AntipodeMap antipode coord={antipodeCoord} color={colors} />
+          </Grid>
         </Grid>
       </Grid>
     </Container>
