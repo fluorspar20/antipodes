@@ -2,8 +2,9 @@ import React from "react";
 import { Grid, Container, Theme } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Typography } from "@material-ui/core";
-import Search from "./Search";
 import axios from "axios";
+
+import Search from "./Search";
 import { KEY } from "../config";
 import { getAntipode } from "../utils/getAntipode";
 import { getRandomColor } from "../utils/getRandomColor";
@@ -27,6 +28,7 @@ const useStyles = makeStyles(({ spacing }: Theme) => ({
   },
 }));
 
+// interface for places provided by Places API
 export interface PlaceType {
   description: string;
   structured_formatting: {
@@ -50,9 +52,16 @@ export interface Coordinates {
 const AntipodeMaster: React.FC = () => {
   const classes = useStyles();
 
+  // state to maintain the places selected by the user
   const [places, setPlaces] = React.useState<PlaceType[] | null>([]);
+
+  // state to maintain the coordinates of places selected by the user
   const [coord, setCoord] = React.useState<Coordinates[]>([]);
+
+  // state to maintain the antipode coordinates of places selected by the user
   const [antipodeCoord, setAntipodeCoord] = React.useState<Coordinates[]>([]);
+
+  // state to maintain the colors of markers for each antipode pair
   const [colors, setColors] = React.useState<string[]>([]);
 
   React.useEffect(() => {
@@ -91,21 +100,6 @@ const AntipodeMaster: React.FC = () => {
     setColors(getRandomColor(coord.length));
   }, [coord]);
 
-  const handleClick = () => {
-    console.log(places);
-
-    // snippet to make sure that if user presses find a multiple times, duplicate entries are not taken into account
-    // const uniqueCoords: Coordinates[] = [];
-    // coord.forEach((c: any) => {
-    //   if (!uniqueCoords.includes(c)) {
-    //     uniqueCoords.push(c);
-    //   }
-    // });
-
-    // setCoord(uniqueCoords);
-    console.log(coord);
-  };
-
   return (
     <Container maxWidth="md">
       <Grid container spacing={8}>
@@ -120,7 +114,7 @@ const AntipodeMaster: React.FC = () => {
           <AntipodeInfo />
         </Grid>
         <Grid item xs={12}>
-          <Search places={places} setPlaces={setPlaces} handleClick={handleClick} />
+          <Search places={places} setPlaces={setPlaces} />
         </Grid>
         <Grid item xs={12}>
           <Grid justify="space-between" container>

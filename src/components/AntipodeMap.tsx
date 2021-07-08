@@ -1,9 +1,10 @@
 import React, { Component } from "react";
 import GoogleMapReact, { Props } from "google-map-react";
-import { KEY } from "../config";
-import { Coordinates } from "./AntipodeMaster";
 import { makeStyles } from "@material-ui/core/styles";
 import { Typography } from "@material-ui/core";
+
+import { KEY } from "../config";
+import { Coordinates } from "./AntipodeMaster";
 
 interface MarkerProps {
   lat: number;
@@ -56,7 +57,6 @@ export default class AntipodeMap extends Component<MapProps> {
 
   render() {
     return (
-      // Important! Always set the container height explicitly
       <div style={{ height: "80vh", width: "49%", margin: "16px 0" }}>
         <Typography variant="body1">
           {this.props.antipode ? "Corresponding Antipodes:" : "Entered Places:"}
