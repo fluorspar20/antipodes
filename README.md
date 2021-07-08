@@ -3,6 +3,8 @@ This project is live at https://antipodes-task.netlify.app/
 Install this Chrome Extension to enable CORS for the website:
 https://chrome.google.com/webstore/detail/allow-cors-access-control/lhobafahddgcelffkeicbaginigeejlf/related?hl=en
 
+![image](./images/screenshot.gif)
+
 ## Available Scripts
 
 In the project directory, you can run:
