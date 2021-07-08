@@ -54,10 +54,6 @@ export default class AntipodeMap extends Component<MapProps> {
     zoom: 0,
   };
 
-  componentDidUpdate() {
-    console.log(this.props.coord);
-  }
-
   render() {
     return (
       // Important! Always set the container height explicitly

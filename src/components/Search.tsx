@@ -13,6 +13,7 @@ import { KEY } from "../config";
 import axios from "axios";
 
 import { FormControl } from "@material-ui/core";
+import _ from "lodash";
 
 const useStyles = makeStyles((theme: Theme) => ({
   icon: {
@@ -65,6 +66,10 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ places, setPlaces }) =>
     fetch();
   }, [places, inputValue]);
 
+  const handleInputChange = (event: React.ChangeEvent<{}>, newInputValue: string) => {
+    setInputValue(newInputValue);
+  };
+
   return (
     <Autocomplete
       fullWidth
@@ -84,9 +89,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ places, setPlaces }) =>
         setOptions(newValue ? options.concat(newValue) : options);
         setPlaces(newValue);
       }}
-      onInputChange={(event, newInputValue) => {
-        setInputValue(newInputValue);
-      }}
+      onInputChange={_.debounce(handleInputChange, 500)}
       renderInput={(params) => (
         <TextField {...params} label="Enter a country or city" variant="outlined" fullWidth />
       )}
